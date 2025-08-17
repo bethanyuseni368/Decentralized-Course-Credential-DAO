@@ -9,6 +9,9 @@
 (define-constant ERR-VOTING-CLOSED (err u106))
 (define-constant ERR-COURSE-NOT-FOUND (err u107))
 (define-constant ERR-NOT-ENOUGH-STAKE (err u108))
+(define-constant ERR-COURSE-NOT-APPROVED (err u109))
+(define-constant ERR-ALREADY-RATED (err u110))
+(define-constant ERR-INVALID-RATING (err u111))
 
 (define-data-var dao-owner principal tx-sender)
 (define-data-var min-stake uint u1000)
@@ -46,6 +49,19 @@
         recipient: principal,
         course-id: uint,
         timestamp: uint
+    }
+)
+
+(define-map course-ratings
+    {course-id: uint, rater: principal}
+    {rating: uint, timestamp: uint}
+)
+
+(define-map course-rating-stats
+    uint
+    {
+        total-ratings: uint,
+        sum-ratings: uint
     }
 )
 
@@ -140,3 +156,31 @@
     (begin
         (asserts! (is-eq tx-sender sender) ERR-NOT-AUTHORIZED)
         (nft-transfer? credential token-id sender recipient)))
+
+(define-public (rate-course (course-id uint) (rating uint))
+    (let ((course (unwrap! (map-get? courses course-id) ERR-COURSE-NOT-FOUND))
+          (current-stats (default-to {total-ratings: u0, sum-ratings: u0} 
+                         (map-get? course-rating-stats course-id))))
+        (asserts! (is-some (map-get? dao-members tx-sender)) ERR-NOT-MEMBER)
+        (asserts! (get approved course) ERR-COURSE-NOT-APPROVED)
+        (asserts! (and (>= rating u1) (<= rating u5)) ERR-INVALID-RATING)
+        (asserts! (is-none (map-get? course-ratings {course-id: course-id, rater: tx-sender})) ERR-ALREADY-RATED)
+        (map-set course-ratings {course-id: course-id, rater: tx-sender} 
+                 {rating: rating, timestamp: stacks-block-height})
+        (map-set course-rating-stats course-id 
+                 {total-ratings: (+ (get total-ratings current-stats) u1),
+                  sum-ratings: (+ (get sum-ratings current-stats) rating)})
+        (ok true)))
+
+(define-read-only (get-course-rating (course-id uint))
+    (let ((stats (default-to {total-ratings: u0, sum-ratings: u0} 
+                 (map-get? course-rating-stats course-id))))
+        (if (> (get total-ratings stats) u0)
+            (ok (some {
+                average-rating: (/ (get sum-ratings stats) (get total-ratings stats)),
+                total-ratings: (get total-ratings stats)
+            }))
+            (ok none))))
+
+(define-read-only (get-user-rating (course-id uint) (user principal))
+    (ok (map-get? course-ratings {course-id: course-id, rater: user})))
