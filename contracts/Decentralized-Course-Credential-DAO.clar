@@ -12,6 +12,7 @@
 (define-constant ERR-COURSE-NOT-APPROVED (err u109))
 (define-constant ERR-ALREADY-RATED (err u110))
 (define-constant ERR-INVALID-RATING (err u111))
+(define-constant ERR-NOT-ENROLLED (err u112))
 
 (define-data-var dao-owner principal tx-sender)
 (define-data-var min-stake uint u1000)
@@ -63,6 +64,11 @@
         total-ratings: uint,
         sum-ratings: uint
     }
+)
+
+(define-map course-enrollments
+    {course-id: uint, student: principal}
+    {enrolled: bool, timestamp: uint}
 )
 
 (define-non-fungible-token credential uint)
@@ -124,6 +130,7 @@
     (let ((course (unwrap! (map-get? courses course-id) ERR-COURSE-NOT-FOUND))
           (credential-id (var-get next-credential-id)))
         (asserts! (get approved course) ERR-NOT-AUTHORIZED)
+        (asserts! (is-some (map-get? course-enrollments {course-id: course-id, student: recipient})) ERR-NOT-ENROLLED)
         (try! (nft-mint? credential credential-id recipient))
         (map-set credentials credential-id 
             {
@@ -184,3 +191,14 @@
 
 (define-read-only (get-user-rating (course-id uint) (user principal))
     (ok (map-get? course-ratings {course-id: course-id, rater: user})))
+
+(define-public (enroll-in-course (course-id uint))
+    (let ((course (unwrap! (map-get? courses course-id) ERR-COURSE-NOT-FOUND)))
+        (asserts! (is-some (map-get? dao-members tx-sender)) ERR-NOT-MEMBER)
+        (asserts! (is-none (map-get? course-enrollments {course-id: course-id, student: tx-sender})) ERR-ALREADY-MEMBER)
+        (map-set course-enrollments {course-id: course-id, student: tx-sender}
+                 {enrolled: true, timestamp: stacks-block-height})
+        (ok true)))
+
+(define-read-only (is-enrolled (course-id uint) (student principal))
+    (ok (is-some (map-get? course-enrollments {course-id: course-id, student: student}))))
