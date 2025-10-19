@@ -1,0 +1,47 @@
+[network]
+name = "devnet"
+deployment_fee_rate = 10
+
+[accounts.deployer]
+mnemonic = "fetch outside black test wash cover just actual execute nice door want airport betray quantum stamp fish act pen wing follow exhibit cause solution"
+balance = 1_000_000_000_000
+
+[accounts.wallet_1]
+mnemonic = "spoil sock coyote include verify comic jacket gain beauty tank flush victory illness edge reveal shallow plug hobby usual juice harsh pact wreck eight"
+balance = 1_000_000_000_000
+
+[accounts.wallet_2] 
+mnemonic = "hold excess usual excess ring elephant install account glad dry fragile donkey gaze humble truck breeze nation gasp vacuum limb head keep delay hospital"
+balance = 1_000_000_000_000
+
+[accounts.wallet_3]
+mnemonic = "board list obtain sugar hour worth raven scout denial thunder horse logic fury scorpion fold genuine phrase wealth news aim below celery when cabin"
+balance = 1_000_000_000_000
+
+[devnet]
+disable_bitcoin_explorer = true
+bitcoin_explorer_port = 8001
+miner_mnemonic = "point approve language letter cargo rough similar wrap focus edge polar task olympic tobacco cinnamon drop lawn boring sort trade senior screen tiger climb"
+miner_derivation_path = "m/44'/5757'/0'/0/0"
+faucet_mnemonic = "shadow private easily thought say logic fault paddle word top book during ignore notable orange flight clock image wealth health outside kitten belt reform"
+faucet_derivation_path = "m/44'/5757'/0'/0/0"
+bitcoin_explorer_url = "http://localhost:8001"
+bitcoin_node_rpc_host = "localhost"
+bitcoin_node_rpc_port = 18443
+bitcoin_node_p2p_host = "localhost"
+bitcoin_node_p2p_port = 18444
+bitcoin_node_username = "devnet"
+bitcoin_node_password = "devnet"
+working_dir = "tmp/devnet"
+postgres_port = 5432
+postgres_username = "postgres"
+postgres_password = "postgres"
+postgres_database = "stacks_blockchain_api"
+stacks_node_rpc_host = "localhost"
+stacks_node_rpc_port = 20443
+stacks_node_p2p_host = "localhost"
+stacks_node_p2p_port = 20444
+stacks_api_host = "localhost"
+stacks_api_port = 3999
+stacks_explorer_host = "localhost"
+stacks_explorer_port = 8000
