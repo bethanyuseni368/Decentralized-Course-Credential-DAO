@@ -1,0 +1,12 @@
+[project]
+name = "Decentralized-Course-Credential-DAO"
+description = "A decentralized autonomous organization (DAO) for course accreditation and credential issuance"
+authors = []
+telemetry = true
+cache_dir = "./.cache"
+
+[contracts.charity-donation-tracker]
+path = "contracts/charity-donation-tracker.clar"
+
+[repl.analysis]
+passes = []
